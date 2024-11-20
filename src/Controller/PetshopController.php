@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Address;
 use App\Entity\Petshop;
+use App\Repository\AddressRepository;
 use App\Repository\PetshopRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -14,9 +15,11 @@ class PetshopController extends AbstractController
 {
 
     private $petshopRepository;
+    private $addressRepository;
 
-    public function __construct(PetshopRepository $petshopRepository) {
+    public function __construct(PetshopRepository $petshopRepository, AddressRepository $addressRepository) {
         $this->petshopRepository = $petshopRepository;
+        $this->addressRepository = $addressRepository;
     }
 
     #[Route('/petshop', name: 'app_petshop')]
@@ -30,22 +33,30 @@ class PetshopController extends AbstractController
         ]);
     }
 
-    #[Route('/createPetShop', name:'app_create_petshop')]
-    public function create(EntityManagerInterface $em): Response {
+    #[Route('/petshop/createPetshop/{name}', name:'app_create_petshop')]
+    public function create(EntityManagerInterface $em, string $name): Response {
         $petshop = new Petshop();
-        $petshop->setName('Pohstep');
+        $petshop->setName($name);
 
-        $address = new Address();
-        $address->setStreetNumber(20);
-        $address->setStreetName("Rue de lapaix");
-        $address->setZipCode("97400");
+        $em->persist($petshop);
+        $em->flush();
+
+        return $this->redirectToRoute('app_petshop');
+    }
+
+    #[Route('/petshop/createPetAddress/{name}/{addressId}', name:'app_create_petshopAddress')]
+    public function createWithAddress(EntityManagerInterface $em, string $name, int $addressId): Response {
+        $petshop = new Petshop();
+        $petshop->setName($name);
+
+        $address = $this->addressRepository->find($addressId);
 
         $petshop->setAddress($address);
 
         $em->persist($petshop);
         $em->flush();
 
-        return new Response("Animalerie :". $petshop->getName() ." à été créer.");
+        return $this->redirectToRoute('app_petshop');
     }
 
     #[Route("/petshop/{id}", name:"app_petshop_showOne")]
