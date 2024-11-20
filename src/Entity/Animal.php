@@ -32,6 +32,9 @@ class Animal
     #[ORM\Column(length: 255)]
     private ?string $breed = null;
 
+    #[ORM\ManyToOne(inversedBy: 'animal')]
+    private ?Petshop $petshop = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -105,6 +108,18 @@ class Animal
     public function setBreed(string $breed): static
     {
         $this->breed = $breed;
+
+        return $this;
+    }
+
+    public function getPetshop(): ?Petshop
+    {
+        return $this->petshop;
+    }
+
+    public function setPetshop(?Petshop $petshop): static
+    {
+        $this->petshop = $petshop;
 
         return $this;
     }

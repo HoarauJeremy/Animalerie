@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ProductRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -28,6 +30,17 @@ class Product
 
     #[ORM\Column]
     private ?bool $isActive = null;
+
+    /**
+     * @var Collection<int, Petshop>
+     */
+    #[ORM\ManyToMany(targetEntity: Petshop::class, inversedBy: 'products')]
+    private Collection $petShops;
+
+    public function __construct()
+    {
+        $this->petShops = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -90,6 +103,30 @@ class Product
     public function setActive(bool $isActive): static
     {
         $this->isActive = $isActive;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Petshop>
+     */
+    public function getPetShops(): Collection
+    {
+        return $this->petShops;
+    }
+
+    public function addPetShops(Petshop $petShop): static
+    {
+        if (!$this->petShops->contains($petShop)) {
+            $this->petShops->add($petShop);
+        }
+
+        return $this;
+    }
+
+    public function removePetShops(Petshop $petShop): static
+    {
+        $this->petShops->removeElement($petShop);
 
         return $this;
     }
