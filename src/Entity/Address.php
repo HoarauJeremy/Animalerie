@@ -22,6 +22,9 @@ class Address
     #[ORM\Column(length: 255)]
     private ?string $zipCode = null;
 
+    #[ORM\OneToOne(mappedBy: 'address', cascade: ['persist', 'remove'])]
+    private ?Petshop $petshop = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -59,6 +62,28 @@ class Address
     public function setZipCode(string $zipCode): static
     {
         $this->zipCode = $zipCode;
+
+        return $this;
+    }
+
+    public function getPetshop(): ?Petshop
+    {
+        return $this->petshop;
+    }
+
+    public function setPetshop(?Petshop $petshop): static
+    {
+        // unset the owning side of the relation if necessary
+        if ($petshop === null && $this->petshop !== null) {
+            $this->petshop->setAddress(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($petshop !== null && $petshop->getAddress() !== $this) {
+            $petshop->setAddress($this);
+        }
+
+        $this->petshop = $petshop;
 
         return $this;
     }
