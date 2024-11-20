@@ -18,7 +18,7 @@ class Animal
     private ?string $name = null;
 
     #[ORM\Column(length: 6)]
-    private ?string $gender = null;
+    private ?string $sex = null;
 
     #[ORM\Column(nullable: true)]
     private ?int $height = null;
@@ -49,14 +49,14 @@ class Animal
         return $this;
     }
 
-    public function getGender(): ?string
+    public function getSex(): ?string
     {
-        return $this->gender;
+        return $this->sex;
     }
 
-    public function setGender(string $gender): static
+    public function setSex(string $sex): static
     {
-        $this->gender = $gender;
+        $this->sex = $sex;
 
         return $this;
     }
