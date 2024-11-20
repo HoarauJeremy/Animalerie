@@ -44,14 +44,13 @@ class PetshopController extends AbstractController
         return $this->redirectToRoute('app_petshop');
     }
 
-    #[Route('/petshop/createPetAddress/{name}/{addressId}', name:'app_create_petshopAddress')]
-    public function createWithAddress(EntityManagerInterface $em, string $name, int $addressId): Response {
-        $petshop = new Petshop();
-        $petshop->setName($name);
-
+    #[Route('/petshop/createPetAddress/{petshopId}/{addressId}', name:'app_create_petshopAddress')]
+    public function createWithAddress(EntityManagerInterface $em, int $petshopId, int $addressId): Response {
+        $petshop = $this->petshopRepository->find($petshopId);
         $address = $this->addressRepository->find($addressId);
-
+        
         $petshop->setAddress($address);
+        $address->setPetShop($petshop);
 
         $em->persist($petshop);
         $em->flush();
