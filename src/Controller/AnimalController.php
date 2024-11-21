@@ -3,9 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\Animal;
+use App\Form\AnimalType;
 use App\Repository\AnimalRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -29,19 +31,26 @@ class AnimalController extends AbstractController
     }
 
     #[Route('/animal/create', name:'app_create_animal')]
-    public function create(EntityManagerInterface $em): Response {
+    public function create(Request $request,EntityManagerInterface $em): Response {
 
         $animal = new Animal();
-        $animal->setName('CHAT');
-        $animal->setBirthDate(new \DateTime('2022-09-09'));
-        $animal->setHeight(100);
-        $animal->setWeight(100);
-        $animal->setSex("MALE");
-        $animal->setBreed("-");
+        
+        $formAnimal = $this->createForm(AnimalType::class, $animal);
 
-        $em->persist($animal);
-        $em->flush();
+        if ($request->isMethod('POST')) {
+            $formAnimal->handleRequest($request);
+            if ($formAnimal->isSubmitted() && $formAnimal->isValid()) {
+                $animalData = $formAnimal->getData();
 
-        return $this->redirectToRoute('app_animal');
+                $em->persist($animalData);
+                $em->flush();
+
+                return $this->redirectToRoute('app_animal');
+            }
+        }
+
+        return $this->render('/animal/create.html.twig', [
+            'formAnimal' => $formAnimal,
+        ]);
     }
 }
