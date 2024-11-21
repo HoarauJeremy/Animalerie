@@ -21,6 +21,10 @@
                     {% endfor %}
                 {% endif %}
                 </ol>
+                {% if product.description is not null %}
+                {{ product.description }}
+                {% endif %}
+                
             </li>
         {% endfor %}
     </ul>

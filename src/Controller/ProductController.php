@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Product;
+use App\Form\ProductType;
 use App\Repository\PetshopRepository;
 use App\Repository\ProductRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -29,12 +30,17 @@ class ProductController extends AbstractController
     {
         $product = new Product();
 
-        $form = $this->createFormBuilder($product)
+        /* $form = $this->createFormBuilder($product)
                 ->setMethod('POST')
                 ->add('name', null, ['required' => true])
-                ->add('price', MoneyType::class, ['required' => false])
+                ->add('price', MoneyType::class, [
+                    'required' => false,
+                    'label' => "prix"
+                ])
                 ->add('save', SubmitType::class)
-                ->getForm();
+                ->getForm(); */
+
+        $form = $this->createForm(ProductType::class, $product);
 
         if ($request->isMethod('POST')) {
             $form->handleRequest($request);
