@@ -9,13 +9,9 @@
 </style>
 
 <div class="example-wrapper">
-    <h1>Tous les animaux</h1>
+    <h1>Animale</h1>
 
-    <ul>
-        {% for animal in animals %}
-            <li>{{ animal.name }} | {{ animal.height }} height {{ animal.weight }} weight {{ animal.sex }} {{ animal.birthDate|date("d/m/Y") }} {{ animal.breed }}</li>
-        {% endfor %}
-    </ul>
+    {{ form(formAnimal) }}
     
 </div>
 {% endblock %}
