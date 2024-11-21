@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Address;
+use App\Entity\Animal;
 use App\Entity\Petshop;
 use App\Repository\AddressRepository;
 use App\Repository\PetshopRepository;
@@ -66,6 +67,22 @@ class PetshopController extends AbstractController
 
         return $this->render("petshop/showOne.html.twig", [
             "petshop"=> $petshop,
+        ]);
+    }
+
+    #[Route('/petshop/{petshopId}/animals', name: 'app_petshop_animals')]
+    public function showAnimal(EntityManagerInterface $em, int $petshopId): Response
+    {
+        $petshop = $this->petshopRepository->find($petshopId);
+        // $animals = new Animal();
+
+        // $animals = $petshop->getAnimals();
+
+        // dd($petshop, $animals);
+
+        return $this->render('petshop/showAnimal.html.twig', [
+            'petshop' => $petshop,
+            // 'animals' => $animals
         ]);
     }
 }
