@@ -5,10 +5,12 @@ namespace App\Controller;
 use App\Entity\Address;
 use App\Entity\Animal;
 use App\Entity\Petshop;
+use App\Form\PetshopType;
 use App\Repository\AddressRepository;
 use App\Repository\PetshopRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -34,15 +36,29 @@ class PetshopController extends AbstractController
         ]);
     }
 
-    #[Route('/petshop/createPetshop/{name}', name:'app_create_petshop')]
-    public function create(EntityManagerInterface $em, string $name): Response {
+    #[Route('/petshop/create', name:'app_create_petshop')]
+    public function create(EntityManagerInterface $em, Request $request): Response {
         $petshop = new Petshop();
-        $petshop->setName($name);
+        
+        $petshopForm = $this->createForm(PetshopType::class, $petshop);
 
-        $em->persist($petshop);
-        $em->flush();
+        if ($request->isMethod('POST')) {
+            $petshopForm->handleRequest($request);
 
-        return $this->redirectToRoute('app_petshop');
+            if ($petshopForm->isSubmitted() && $petshopForm->isValid()) {
+                $petshopData = $petshopForm->getData();
+
+                $em->persist($petshopData);
+                $em->flush();
+                                
+                return $this->redirectToRoute('app_petshop');
+            }
+        }
+
+        return $this->render('petshop/create.html.twig', [
+            'petshopForm' => $petshopForm,
+        ]);
+        
     }
 
     #[Route('/petshop/createPetAddress/{petshopId}/{addressId}', name:'app_create_petshopAddress')]
@@ -74,11 +90,6 @@ class PetshopController extends AbstractController
     public function showAnimal(EntityManagerInterface $em, int $petshopId): Response
     {
         $petshop = $this->petshopRepository->find($petshopId);
-        // $animals = new Animal();
-
-        // $animals = $petshop->getAnimals();
-
-        // dd($petshop, $animals);
 
         return $this->render('petshop/showAnimal.html.twig', [
             'petshop' => $petshop,
