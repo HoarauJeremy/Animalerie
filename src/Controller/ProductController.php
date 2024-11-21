@@ -6,9 +6,12 @@ use App\Entity\Product;
 use App\Repository\PetshopRepository;
 use App\Repository\ProductRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Form\Extension\Core\Type\MoneyType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class ProductController extends AbstractController
 {
@@ -22,16 +25,42 @@ class ProductController extends AbstractController
     }
 
     #[Route('/product', name: 'app_product')]
-    public function index(): Response
+    public function index(Request $request, EntityManagerInterface $em): Response
     {
+        $product = new Product();
 
-        $products = $this->productRepository->findAll();
-        // $petShops = $this->petshopRepository->findAll();
+        $form = $this->createFormBuilder($product)
+                ->setMethod('POST')
+                ->add('name', null, ['required' => true])
+                ->add('price', MoneyType::class, ['required' => false])
+                ->add('save', SubmitType::class)
+                ->getForm();
 
-        // dd($products);
+        if ($request->isMethod('POST')) {
+            $form->handleRequest($request);
+            if ($form->isSubmitted() && $form->isValid()) {
+                $productData = $form->getData();
+                $productData->setActive(true);
+                $productData->setCreatedAt(new \DateTimeImmutable());
+
+                $em->persist($productData);
+                $em->flush();
+
+                return $this->redirectToRoute('app_product_show');
+            }
+        }
 
         return $this->render('product/index.html.twig', [
             'controller_name' => 'ProductController',
+            'form'=> $form,
+        ]);
+    }
+
+    #[Route('/product/show', name:'app_product_show')]
+    public function show(): Response {
+        $products = $this->productRepository->findAll();
+
+        return $this->render('product/show.html.twig', [
             'products'=> $products,
         ]);
     }
